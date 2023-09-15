@@ -17,14 +17,10 @@ type Env struct {
 	HttpServerReadTimeoutSeconds  time.Duration
 	HttpServerWriteTimeoutSeconds time.Duration
 	HttpServerTlsEnabled          bool
+	FileServerBasePath            string
 }
 
 func NewEnv() *Env {
-	credsFileName := "creds.env"
-	err := godotenv.Load(credsFileName)
-	if err != nil {
-		panic(fmt.Errorf("fail to load credentials", err))
-	}
 	return &Env{
 		HttpServerHost:                getEnvStr(HttpServerHost),
 		HttpServerProtocol:            getEnvStr(HttpServerProtocol),
@@ -35,6 +31,7 @@ func NewEnv() *Env {
 		HttpServerReadTimeoutSeconds:  getEnvSeconds(HttpServerReadTimeoutSeconds),
 		HttpServerWriteTimeoutSeconds: getEnvSeconds(HttpServerWriteTimeoutSeconds),
 		HttpServerTlsEnabled:          getEnvBool(HttpServerTlsEnabled),
+		FileServerBasePath:            getEnvStr(FileServerBasePath),
 	}
 }
 

@@ -10,4 +10,6 @@ const (
 	HttpServerReadTimeoutSeconds  = "HTTP_SERVER_READ_TIMEOUT_SECONDS"
 	HttpServerWriteTimeoutSeconds = "HTTP_SERVER_WRITE_TIMEOUT_SECONDS"
 	HttpServerTlsEnabled          = "HTTP_SERVER_TLS_ENABLED"
+
+	FileServerBasePath = "FILE_SERVER_BASE_PATH"
 )

@@ -1,7 +1,11 @@
 package service
 
+import (
+	"rest-api-file-server/model"
+)
+
 type FileService interface {
-	SaveFile(string) error
-	GetFile(string) error
+	SaveFile(file *model.File) error
+	GetFile(string) (string, error)
 	DeleteFile(string) error
 }

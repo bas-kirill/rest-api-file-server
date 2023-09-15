@@ -9,13 +9,14 @@ import (
 	"os"
 	"rest-api-file-server/config"
 	"rest-api-file-server/controller"
-	env2 "rest-api-file-server/env"
+	"rest-api-file-server/env"
+	"rest-api-file-server/middleware"
 	"rest-api-file-server/service"
 	"time"
 )
 
 func setUpLogger() *zap.Logger {
-	// todo: set up log file prefix from credentials
+	// todo: set up log file prefix from credentials + custom logger for project
 	consoleLevel := zapcore.DebugLevel
 	consoleLogConfig := zap.NewDevelopmentEncoderConfig()
 	consoleEncoder := zapcore.NewConsoleEncoder(consoleLogConfig)
@@ -27,7 +28,7 @@ func setUpLogger() *zap.Logger {
 	consoleCore := zapcore.NewCore(consoleEncoder, consoleOutput, consoleLevel)
 
 	logFilePath := fmt.Sprintf("./log/%s.log", time.Now().Format(time.RFC3339))
-	fileOutput, err := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	fileOutput, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		panic("fail to open log file: " + err.Error())
 	}
@@ -41,18 +42,22 @@ func setUpLogger() *zap.Logger {
 }
 
 func main() {
-	env := env2.NewEnv()
-	httpServerConfig := config.NewHttpServerConfig(env)
+	appEnv := env.NewEnv()
+	httpServerConfig := config.NewHttpServerConfig(appEnv)
+	fileServerConfig := config.NewFileServerConfig(appEnv)
 	logger := setUpLogger()
 
-	fileWebService := service.NewFileWebService(logger)
+	fileWebService := service.NewFileWebService(logger, fileServerConfig)
 
 	saveFileController := controller.NewSaveFileController(logger, fileWebService)
 	getFileController := controller.NewGetFileController(logger, fileWebService)
 	deleteFileController := controller.NewDeleteFileController(logger, fileWebService)
 
+	httpLoggerMiddleware := middleware.NewHttpLoggerMiddleware(logger)
+
 	router := mux.NewRouter()
-	router.HandleFunc("/{file-system-path}", saveFileController.SaveFile).Methods(http.MethodPost)
+	router.Use(httpLoggerMiddleware.Log)
+	router.HandleFunc("/", saveFileController.SaveFile).Methods(http.MethodPost)
 	router.HandleFunc("/{file-system-path}", getFileController.GetFile).Methods(http.MethodGet)
 	router.HandleFunc("/{file-system-path}", deleteFileController.DeleteFile).Methods(http.MethodDelete)
 
