@@ -3,3 +3,6 @@ build:
 
 run:
 	cd cmd/api; ./rundev.sh
+
+test:
+	go test ./internal/... -coverpkg=./...
