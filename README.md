@@ -6,6 +6,7 @@ Ladies and gentlemen, this is my first test assignment for a big tech company, a
 This is Golang File Server including the following features:
 *   made with Clean Architecture in mind (controller -> service -> repository)
 *   has service that work with file system
+*   config based on envconfig (<https://github.com/kelseyhightower/envconfig>)
 *   made relatively fast :) but with :heart: :)
 
 <img src="./images/make-run.png">
