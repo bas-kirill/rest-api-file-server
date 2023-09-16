@@ -19,6 +19,6 @@ services:
       - HTTP_SERVER_TLS_ENABLED=False
       - FILE_SERVER_BASE_PATH=/Users/eertree_work/experiments/rest-api-file-server/test-data
     ports:
-      - 8080:8080
+      - 8080:36000
     networks:
       - rest-api
