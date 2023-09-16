@@ -1,0 +1,241 @@
+{
+	"info": {
+		"_postman_id": "2deaea2d-0b5e-46d8-a7d1-478f315d4780",
+		"name": "REST API File Server",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27967994"
+	},
+	"item": [
+		{
+			"name": "Save File",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/Users/eertree_work/experiments/rest-api-file-server/test-files/user_file.txt"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{proto}}://{{host}}:{{port}}/:file-system-path",
+					"protocol": "{{proto}}",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						":file-system-path"
+					],
+					"variable": [
+						{
+							"key": "file-system-path",
+							"value": "folder/file.txt"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Save File",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/Users/eertree_work/experiments/rest-api-file-server/test-files/user_file.txt"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{proto}}://{{host}}:{{port}}/:file-system-path",
+							"protocol": "{{proto}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								":file-system-path"
+							],
+							"variable": [
+								{
+									"key": "file-system-path",
+									"value": "folder/file.txt"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 16 Sep 2023 10:43:56 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "27"
+						}
+					],
+					"cookie": [],
+					"body": "\"Saved `/folder/file.txt`\""
+				}
+			]
+		},
+		{
+			"name": "Get File",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{proto}}://{{host}}:{{port}}/:file-system-path",
+					"protocol": "{{proto}}",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						":file-system-path"
+					],
+					"variable": [
+						{
+							"key": "file-system-path",
+							"value": "folder/file.txt"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get File",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{proto}}://{{host}}:{{port}}/:file-system-path",
+							"protocol": "{{proto}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								":file-system-path"
+							],
+							"variable": [
+								{
+									"key": "file-system-path",
+									"value": "folder/file.txt"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Accept-Ranges",
+							"value": "bytes"
+						},
+						{
+							"key": "Content-Length",
+							"value": "28"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						},
+						{
+							"key": "Last-Modified",
+							"value": "Sat, 16 Sep 2023 10:41:19 GMT"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 16 Sep 2023 10:41:35 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "Row #1\nRow #2\nRow #3\nRow #4\n"
+				}
+			]
+		},
+		{
+			"name": "Delete File",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{proto}}://{{host}}:{{port}}/:file-system-path",
+					"protocol": "{{proto}}",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						":file-system-path"
+					],
+					"variable": [
+						{
+							"key": "file-system-path",
+							"value": "folder/file.txt"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Delete File",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{proto}}://{{host}}:{{port}}/:file-system-path",
+							"protocol": "{{proto}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								":file-system-path"
+							],
+							"variable": [
+								{
+									"key": "file-system-path",
+									"value": "folder/file.txt"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Sat, 16 Sep 2023 10:41:48 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "0"
+						}
+					],
+					"cookie": [],
+					"body": null
+				}
+			]
+		}
+	]
+}
