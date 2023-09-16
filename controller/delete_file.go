@@ -22,7 +22,8 @@ func (d *DeleteFileController) DeleteFile(w http.ResponseWriter, r *http.Request
 	err := d.service.DeleteFile(userFilePath)
 	if err != nil {
 		if err.Error() == "file not found" {
-			http.Error(w, "File not found", http.StatusNotFound)
+			w.WriteHeader(http.StatusOK)
+			return
 		}
 		if err.Error() == "fail remove file" {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)

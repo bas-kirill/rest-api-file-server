@@ -50,16 +50,16 @@ func main() {
 	fileWebService := service.NewFileWebService(logger, fileServerConfig)
 
 	saveFileController := controller.NewSaveFileController(logger, fileWebService)
-	getFileController := controller.NewGetFileController(logger, fileWebService)
+	getFileController := controller.NewGetFileController(logger, fileServerConfig, fileWebService)
 	deleteFileController := controller.NewDeleteFileController(logger, fileWebService)
 
 	httpLoggerMiddleware := middleware.NewHttpLoggerMiddleware(logger)
 
 	router := mux.NewRouter()
 	router.Use(httpLoggerMiddleware.Log)
-	router.HandleFunc("/", saveFileController.SaveFile).Methods(http.MethodPost)
-	router.HandleFunc("/{file-system-path}", getFileController.GetFile).Methods(http.MethodGet)
-	router.HandleFunc("/{file-system-path}", deleteFileController.DeleteFile).Methods(http.MethodDelete)
+	router.HandleFunc("/{file-system-path:.*}", saveFileController.SaveFile).Methods(http.MethodPut)
+	router.HandleFunc("/{file-system-path:.*}", getFileController.GetFile).Methods(http.MethodGet)
+	router.HandleFunc("/{file-system-path:.*}", deleteFileController.DeleteFile).Methods(http.MethodDelete)
 
 	server := http.Server{
 		Addr:         ":36000",
@@ -70,7 +70,7 @@ func main() {
 
 	logger.Info("http server started", zap.String("server-address", server.Addr), zap.Any("config", httpServerConfig))
 	if httpServerConfig.TlsEnabled {
-		logger.Fatal("stop http server", zap.Error(server.ListenAndServeTLS(httpServerConfig.CertFile, httpServerConfig.CertKey)))
+		logger.Fatal("stop https server", zap.Error(server.ListenAndServeTLS(httpServerConfig.CertFile, httpServerConfig.CertKey)))
 	} else {
 		logger.Fatal("stop http server", zap.Error(server.ListenAndServe()))
 	}

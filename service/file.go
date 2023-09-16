@@ -25,7 +25,7 @@ func NewFileWebService(logger *zap.Logger, fileServerConfig *config.FileServerCo
 func (f *FileWebService) SaveFile(file *model.File) error {
 	destServerFilePath := filepath.Join(f.fileServerConfig.BaseSystemPath, file.FileSystemPath)
 	destServerFileDir := filepath.Dir(destServerFilePath)
-	err := os.MkdirAll(destServerFileDir, 0644)
+	err := os.MkdirAll(destServerFileDir, 0744)
 	if err != nil {
 		f.logger.Error("fail create folder", zap.String("folder", destServerFileDir), zap.Error(err))
 		return err

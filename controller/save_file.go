@@ -16,12 +16,12 @@ type SaveFileController struct {
 	service          service.FileService
 }
 
-// NewSaveFileController creates a new file controller
+// NewSaveFileController creates a new file save controller
 func NewSaveFileController(logger *zap.Logger, service service.FileService) *SaveFileController {
 	return &SaveFileController{logger: logger, service: service}
 }
 
-// SaveFile idempotent create new file by system path
+// SaveFile create or update file by system path
 func (s *SaveFileController) SaveFile(w http.ResponseWriter, r *http.Request) {
 	file, _, err := r.FormFile("file")
 	if err != nil {
