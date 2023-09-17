@@ -18,7 +18,6 @@ import (
 )
 
 func setUpLogger() *zap.Logger {
-	// todo: set up log file prefix from credentials + custom logger for project
 	consoleLevel := zapcore.DebugLevel
 	consoleLogConfig := zap.NewDevelopmentEncoderConfig()
 	consoleEncoder := zapcore.NewConsoleEncoder(consoleLogConfig)

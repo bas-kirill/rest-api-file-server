@@ -28,4 +28,5 @@ func (d *DeleteFileController) DeleteFile(w http.ResponseWriter, r *http.Request
 		d.logger.Error("delete file", zap.Error(err))
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
+	w.WriteHeader(http.StatusOK)
 }

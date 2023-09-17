@@ -10,6 +10,7 @@ import (
 	"rest-api-file-server/config"
 	"rest-api-file-server/model"
 	"rest-api-file-server/store/pg"
+	"time"
 )
 
 // FileWebService ...
@@ -61,15 +62,16 @@ func (f *FileWebService) persistFileName(fileName string) error {
 		insert into files (filename)
 		values ($1)
 		on conflict do nothing
-		returning file_id`
+		returning created_at`
 
-	var fileId int
+	var createdAt time.Time
 	row := tx.QueryRow(insertNewFileNameSql, fileName)
-	err = row.Scan(&fileId)
+	err = row.Scan(&createdAt)
 	if err != nil {
 		_ = tx.Rollback()
 		if errors.Is(err, sql.ErrNoRows) {
-			return errors.New("file already exists")
+			// it is correct situation because we want to keep idempotency from API pov
+			return nil
 		}
 		return fmt.Errorf("fail to scan to file id: %v", err)
 	}
@@ -104,11 +106,12 @@ func (f *FileWebService) GetFile(fileSystemPath string) (string, error) {
 func (f *FileWebService) DeleteFile(userFilePath string) error {
 	serverFilePath := filepath.Join(f.fileServerConfig.BaseSystemPath, userFilePath)
 
-	if !f.fileExists(serverFilePath) {
+	_, err := os.Stat(serverFilePath)
+	if os.IsNotExist(err) {
 		return errors.New("file not found")
 	}
 
-	err := os.Remove(serverFilePath)
+	err = os.Remove(serverFilePath)
 	if err != nil {
 		return errors.New("fail remove file")
 	}
@@ -130,15 +133,16 @@ func (f *FileWebService) hardDeleteFile(fileName string) error {
 	hardDeleteFileNameSql := `
 		delete from files
 		where filename = $1
-		returning file_id`
+		returning created_at`
 
-	var fileId int
+	var createdAt time.Time
 	row := tx.QueryRow(hardDeleteFileNameSql, fileName)
-	err = row.Scan(&fileId)
+	err = row.Scan(&createdAt)
 	if err != nil {
 		_ = tx.Rollback()
 		if errors.Is(err, sql.ErrNoRows) {
-			return fmt.Errorf("no file name to delete: %v", err)
+			// it is correct situation because we want to keep idempotency from API pov
+			return nil
 		}
 		return fmt.Errorf("fail to delete: %v", err)
 	}
@@ -181,9 +185,4 @@ func (f *FileWebService) ListFiles() ([]string, error) {
 	}
 
 	return fileNames, nil
-}
-
-func (f *FileWebService) fileExists(filename string) bool {
-	_, err := os.Stat(filename)
-	return !os.IsNotExist(err)
 }

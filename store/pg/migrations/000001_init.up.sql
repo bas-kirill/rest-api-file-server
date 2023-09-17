@@ -1,6 +1,5 @@
 create table files
 (
-    file_id    integer generated always as identity primary key,
-    filename   text not null,
+    filename   text not null primary key,
     created_at timestamptz default current_timestamp
 )
