@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -69,9 +70,11 @@ func main() {
 	router.HandleFunc("/{file-system-path:.+}", deleteFileController.DeleteFile).Methods(http.MethodDelete)
 	router.HandleFunc("/", listFilesController.ListFiles).Methods(http.MethodGet)
 
+	methods := handlers.AllowedMethods([]string{"GET"})
+	origins := handlers.AllowedOrigins([]string{"http://localhost:3000"})
 	server := http.Server{
 		Addr:         ":36000",
-		Handler:      router,
+		Handler:      handlers.CORS(methods, origins)(router),
 		ReadTimeout:  httpServerConfig.ReadTimeout,
 		WriteTimeout: httpServerConfig.WriteTimeout,
 	}
