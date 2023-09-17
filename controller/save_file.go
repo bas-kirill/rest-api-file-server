@@ -33,6 +33,7 @@ func (s *SaveFileController) SaveFile(w http.ResponseWriter, r *http.Request) {
 	userFilePath := r.URL.String()
 	err = s.service.SaveFile(model.NewFile(file, userFilePath))
 	if err != nil {
+		s.logger.Error("save file", zap.Error(err))
 		WriteResponse(w, http.StatusInternalServerError, fmt.Sprintf("Fail to save `%s`", userFilePath))
 		return
 	}

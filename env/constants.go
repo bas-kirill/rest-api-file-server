@@ -12,4 +12,16 @@ const (
 	HttpServerTlsEnabled          = "HTTP_SERVER_TLS_ENABLED"
 
 	FileServerBasePath = "FILE_SERVER_BASE_PATH"
+
+	PostgresDSN                          = "POSTGRES_DSN"
+	PostgresHost                         = "POSTGRES_HOST"
+	PostgresPort                         = "POSTGRES_PORT"
+	PostgresDatabaseName                 = "POSTGRES_DATABASE"
+	PostgresDatabaseUser                 = "POSTGRES_DATABASE_USER"
+	PostgresDatabasePassword             = "POSTGRES_DATABASE_PASSWORD"
+	PostgresMaxIdleConnections           = "POSTGRES_MAX_IDLE_CONNECTIONS"
+	PostgresMaxOpenConnections           = "POSTGRES_MAX_OPEN_CONNECTIONS"
+	PostgresConnectionMaxLifetimeSeconds = "POSTGRES_CONNECTION_MAX_LIFETIME_SECONDS"
+	PostgresConnectionMaxIdleTimeSeconds = "POSTGRES_CONNECTION_MAX_IDLE_TIME_SECONDS"
+	PostgresMigrationsUrl                = "POSTGRES_MIGRATIONS_URL"
 )

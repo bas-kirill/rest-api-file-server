@@ -12,11 +12,12 @@ import (
 	"rest-api-file-server/env"
 	"rest-api-file-server/middleware"
 	"rest-api-file-server/service"
+	"rest-api-file-server/store"
+	"rest-api-file-server/store/pg"
 	"time"
 )
 
 func setUpLogger() *zap.Logger {
-	// todo: set up log file prefix from credentials + custom logger for project
 	consoleLevel := zapcore.DebugLevel
 	consoleLogConfig := zap.NewDevelopmentEncoderConfig()
 	consoleEncoder := zapcore.NewConsoleEncoder(consoleLogConfig)
@@ -45,21 +46,28 @@ func main() {
 	appEnv := env.NewEnv()
 	httpServerConfig := config.NewHttpServerConfig(appEnv)
 	fileServerConfig := config.NewFileServerConfig(appEnv)
+	pgConfig := config.NewPostgresConfig(appEnv)
 	logger := setUpLogger()
 
-	fileWebService := service.NewFileWebService(logger, fileServerConfig)
+	pgMigration := store.NewPgMigrator(logger, pgConfig)
+	pgMigration.RunMigrations()
+
+	pgDb := pg.NewPgDatabase(logger, pgConfig)
+	fileWebService := service.NewFileWebService(fileServerConfig, pgDb)
 
 	saveFileController := controller.NewSaveFileController(logger, fileWebService)
 	getFileController := controller.NewGetFileController(logger, fileServerConfig, fileWebService)
 	deleteFileController := controller.NewDeleteFileController(logger, fileWebService)
+	listFilesController := controller.NewListFiles(logger, fileWebService)
 
 	httpLoggerMiddleware := middleware.NewHttpLoggerMiddleware(logger)
 
 	router := mux.NewRouter()
 	router.Use(httpLoggerMiddleware.Log)
-	router.HandleFunc("/{file-system-path:.*}", saveFileController.SaveFile).Methods(http.MethodPut)
-	router.HandleFunc("/{file-system-path:.*}", getFileController.GetFile).Methods(http.MethodGet)
-	router.HandleFunc("/{file-system-path:.*}", deleteFileController.DeleteFile).Methods(http.MethodDelete)
+	router.HandleFunc("/{file-system-path:.+}", saveFileController.SaveFile).Methods(http.MethodPut)
+	router.HandleFunc("/{file-system-path:.+}", getFileController.GetFile).Methods(http.MethodGet)
+	router.HandleFunc("/{file-system-path:.+}", deleteFileController.DeleteFile).Methods(http.MethodDelete)
+	router.HandleFunc("/", listFilesController.ListFiles).Methods(http.MethodGet)
 
 	server := http.Server{
 		Addr:         ":36000",

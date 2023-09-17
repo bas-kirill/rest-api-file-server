@@ -8,30 +8,52 @@ import (
 )
 
 type Env struct {
-	HttpServerHost                string
-	HttpServerProtocol            string
-	HttpServerPort                int
-	HttpServerTLSPort             int
-	HttpServerCertFile            string
-	HttpServerCertKey             string
-	HttpServerReadTimeoutSeconds  time.Duration
-	HttpServerWriteTimeoutSeconds time.Duration
-	HttpServerTlsEnabled          bool
-	FileServerBasePath            string
+	HttpServerHost                       string
+	HttpServerProtocol                   string
+	HttpServerPort                       int
+	HttpServerTLSPort                    int
+	HttpServerCertFile                   string
+	HttpServerCertKey                    string
+	HttpServerReadTimeoutSeconds         time.Duration
+	HttpServerWriteTimeoutSeconds        time.Duration
+	HttpServerTlsEnabled                 bool
+	FileServerBasePath                   string
+	PostgresDSN                          string
+	PostgresHost                         string
+	PostgresPort                         int
+	PostgresDatabase                     string
+	PostgresDatabaseUser                 string
+	PostgresDatabasePassword             string
+	PostgresMaxIdleConnections           int
+	PostgresMaxOpenConnections           int
+	PostgresConnectionMaxLifetimeSeconds time.Duration
+	PostgresConnectionMaxIdleTimeSeconds time.Duration
+	PostgresMigrationsUrl                string
 }
 
 func NewEnv() *Env {
 	return &Env{
-		HttpServerHost:                getEnvStr(HttpServerHost),
-		HttpServerProtocol:            getEnvStr(HttpServerProtocol),
-		HttpServerPort:                getEnvInt(HttpServerPort),
-		HttpServerTLSPort:             getEnvInt(HttpServerTLSPort),
-		HttpServerCertFile:            getEnvStr(HttpServerCertFile),
-		HttpServerCertKey:             getEnvStr(HttpServerCertKey),
-		HttpServerReadTimeoutSeconds:  getEnvSeconds(HttpServerReadTimeoutSeconds),
-		HttpServerWriteTimeoutSeconds: getEnvSeconds(HttpServerWriteTimeoutSeconds),
-		HttpServerTlsEnabled:          getEnvBool(HttpServerTlsEnabled),
-		FileServerBasePath:            getEnvStr(FileServerBasePath),
+		HttpServerHost:                       getEnvStr(HttpServerHost),
+		HttpServerProtocol:                   getEnvStr(HttpServerProtocol),
+		HttpServerPort:                       getEnvInt(HttpServerPort),
+		HttpServerTLSPort:                    getEnvInt(HttpServerTLSPort),
+		HttpServerCertFile:                   getEnvStr(HttpServerCertFile),
+		HttpServerCertKey:                    getEnvStr(HttpServerCertKey),
+		HttpServerReadTimeoutSeconds:         getEnvSeconds(HttpServerReadTimeoutSeconds),
+		HttpServerWriteTimeoutSeconds:        getEnvSeconds(HttpServerWriteTimeoutSeconds),
+		HttpServerTlsEnabled:                 getEnvBool(HttpServerTlsEnabled),
+		FileServerBasePath:                   getEnvStr(FileServerBasePath),
+		PostgresDSN:                          getEnvStr(PostgresDSN),
+		PostgresHost:                         getEnvStr(PostgresHost),
+		PostgresPort:                         getEnvInt(PostgresPort),
+		PostgresDatabase:                     getEnvStr(PostgresDatabaseName),
+		PostgresDatabaseUser:                 getEnvStr(PostgresDatabaseUser),
+		PostgresDatabasePassword:             getEnvStr(PostgresDatabasePassword),
+		PostgresMaxIdleConnections:           getEnvInt(PostgresMaxIdleConnections),
+		PostgresMaxOpenConnections:           getEnvInt(PostgresMaxOpenConnections),
+		PostgresConnectionMaxLifetimeSeconds: getEnvSeconds(PostgresConnectionMaxLifetimeSeconds),
+		PostgresConnectionMaxIdleTimeSeconds: getEnvSeconds(PostgresMaxIdleConnections),
+		PostgresMigrationsUrl:                getEnvStr(PostgresMigrationsUrl),
 	}
 }
 
