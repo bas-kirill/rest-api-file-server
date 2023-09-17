@@ -42,6 +42,8 @@ services:
       - '9090:9090'
     depends_on:
       - node-exporter
+    networks:
+      - file-server
 
   grafana:
     image: grafana/grafana:10.1.1
@@ -54,6 +56,8 @@ services:
       - "3001:3001"
     depends_on:
       - prometheus
+    networks:
+      - file-server
 
   file-server:
     build: ./
@@ -88,5 +92,12 @@ services:
       - prometheus
       - node-exporter
       - grafana
+    networks:
+      - file-server
+
+  admin-ui:
+    build: ./admin-ui
+    ports:
+      - "3000:3000"
     networks:
       - file-server

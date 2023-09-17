@@ -11,3 +11,5 @@ vendor/
 
 # Exclude git history and configuration.
 .gitignore
+
+/node_modules
