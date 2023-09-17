@@ -19,7 +19,7 @@ services:
       - file-server
 
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.6.1
     container_name: node-exporter
     restart: unless-stopped
     volumes:
@@ -32,7 +32,7 @@ services:
       - file-server
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.47.0
     container_name: prometheus
     volumes:
       - ./prometheus:/etc/prometheus
@@ -44,7 +44,7 @@ services:
       - node-exporter
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:10.1.1
     container_name: grafana
     volumes:
       - ./grafana:/etc/grafana
