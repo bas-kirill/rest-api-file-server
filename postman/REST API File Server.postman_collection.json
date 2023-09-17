@@ -22,8 +22,7 @@
 					]
 				},
 				"url": {
-					"raw": "{{proto}}://{{host}}:{{port}}/:file-system-path",
-					"protocol": "{{proto}}",
+					"raw": "{{host}}:{{port}}/:file-system-path",
 					"host": [
 						"{{host}}"
 					],
@@ -236,6 +235,22 @@
 					"body": null
 				}
 			]
+		},
+		{
+			"name": "List Files",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{proto}}://{{host}}:{{port}}",
+					"protocol": "{{proto}}",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}"
+				}
+			},
+			"response": []
 		}
 	]
 }
