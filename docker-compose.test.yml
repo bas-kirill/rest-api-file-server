@@ -1,0 +1,59 @@
+version: "3.0"
+
+networks:
+  test-file-server:
+
+services:
+  postgres:
+    image: postgres:14.9
+    restart: on-failure
+    environment:
+      POSTGRES_DB: testfileserver
+      POSTGRES_USER: testfileserver
+      POSTGRES_PASSWORD: testfileserver
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U testfileserver" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5440:5432"
+    networks:
+      - test-file-server
+
+  test-file-server:
+    build:
+      context: .
+      dockerfile: ./cmd/api/deploy/Dockerfile.test
+    volumes:
+      - $PWD:/go/src/app
+    container_name: test-file-server
+    environment:
+      - HTTP_SERVER_HOST=localhost
+      - HTTP_SERVER_PROTOCOL=http
+      - HTTP_SERVER_PORT=36000
+      - HTTP_SERVER_TLS_PORT=37000
+      - HTTP_SERVER_CERT_FILE=rest-api-file-server.crt
+      - HTTP_SERVER_CERT_KEY=rest-api-file-server.key
+      - HTTP_SERVER_READ_TIMEOUT_SECONDS=60
+      - HTTP_SERVER_WRITE_TIMEOUT_SECONDS=60
+      - HTTP_SERVER_TLS_ENABLED=False
+      - FILE_SERVER_BASE_PATH=/home
+      - POSTGRES_DSN=postgres://testfileserver:testfileserver@postgres/testfileserver?sslmode=disable
+      - POSTGRES_HOST=localhost
+      - POSTGRES_PORT=5440
+      - POSTGRES_DATABASE=testfileserver
+      - POSTGRES_DATABASE_USER=testfileserver
+      - POSTGRES_DATABASE_PASSWORD=testfileserver
+      - POSTGRES_MAX_IDLE_CONNECTIONS=20
+      - POSTGRES_MAX_OPEN_CONNECTIONS=100
+      - POSTGRES_CONNECTION_MAX_LIFETIME_SECONDS=300
+      - POSTGRES_CONNECTION_MAX_IDLE_TIME_SECONDS=300
+      - POSTGRES_MIGRATIONS_URL=file://../../store/pg/migrations
+#    command: ["./cmd/api/wait-for-it.sh", "postgres:5432", "--timeout=60", "--", "./file-server"]
+    ports:
+      - "8080:36000"
+    depends_on:
+      - postgres
+    networks:
+      - test-file-server

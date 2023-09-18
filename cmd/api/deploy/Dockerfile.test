@@ -1,0 +1,10 @@
+FROM golang:1.20.4-alpine
+
+# Install git
+RUN set -ex; \
+    apk update; \
+    apk add --no-cache git
+
+WORKDIR /go/src/app
+
+CMD CGO_ENABLED=0 go test ./...

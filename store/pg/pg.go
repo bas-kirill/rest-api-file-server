@@ -4,13 +4,13 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"go.uber.org/zap"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"rest-api-file-server/config"
 	"time"
 )
 
 type DB struct {
-	logger *zap.Logger
 	config *config.PostgresConfig
 	Db     *sql.DB
 }
@@ -27,23 +27,23 @@ func Open(c *config.PostgresConfig) *sql.DB {
 	return db
 }
 
-func NewPgDatabase(l *zap.Logger, c *config.PostgresConfig) *DB {
+func NewPgDatabase(c *config.PostgresConfig) *DB {
 	db := Open(c)
+	configJSON, _ := json.Marshal(c)
+	fmt.Printf("ping DB `%s`\n", string(configJSON))
 	var err error
 	for i := 0; i < 6; i++ {
 		err = db.Ping()
 		if err == nil {
 			break
 		}
-		time.Sleep(5 * time.Second)
-		l.Info("ping postgres database", zap.String("database", c.Database), zap.Int("cnt", i))
+		time.Sleep(1 * time.Second)
+		fmt.Printf("ping postgres database `%s`\n", c.Database)
 	}
 	if err != nil {
-		configJSON, _ := json.Marshal(c)
-		l.Panic("fail to ping DB", zap.String("config", string(configJSON)), zap.Error(err))
+		panic(fmt.Errorf("fail to ping `%s`", string(configJSON)))
 	}
 
-	l.Info("ping postgres database successfully", zap.String("database", c.Database))
-	l.Info("set up connection to postgres")
-	return &DB{logger: l, config: c, Db: db}
+	fmt.Printf("set up connection to `%s`\n", c.Database)
+	return &DB{config: c, Db: db}
 }

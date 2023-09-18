@@ -4,7 +4,7 @@ COPY . /go/src/app
 
 WORKDIR /go/src/app/cmd/api
 
-RUN go build -o file-server main.go
+RUN CGO_ENBALED=0 GOOS=linux go build -o file-server main.go
 
 EXPOSE 8080
 
