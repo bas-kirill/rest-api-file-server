@@ -53,7 +53,7 @@ func main() {
 	pgMigration := store.NewPgMigrator(logger, pgConfig)
 	pgMigration.RunMigrations()
 
-	pgDb := pg.NewPgDatabase(logger, pgConfig)
+	pgDb := pg.NewPgDatabase(pgConfig)
 	fileWebService := service.NewFileWebService(fileServerConfig, pgDb)
 
 	saveFileController := controller.NewSaveFileController(logger, fileWebService)
