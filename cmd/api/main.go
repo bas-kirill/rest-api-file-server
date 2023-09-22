@@ -72,22 +72,16 @@ func main() {
 
 	methods := handlers.AllowedMethods([]string{"GET"})
 	origins := handlers.AllowedOrigins([]string{"http://localhost:80"}) // todo: add TLS for frontend
+	httpServer := http.Server{
+		Addr:         httpServerConfig.HttpAddr,
+		Handler:      handlers.CORS(methods, origins)(router),
+		ReadTimeout:  httpServerConfig.ReadTimeout,
+		WriteTimeout: httpServerConfig.WriteTimeout,
+	}
 	if httpServerConfig.TlsEnabled {
-		httpsServer := http.Server{
-			Addr:         httpServerConfig.HttpsAddr,
-			Handler:      handlers.CORS(methods, origins)(router),
-			ReadTimeout:  httpServerConfig.ReadTimeout,
-			WriteTimeout: httpServerConfig.WriteTimeout,
-		}
 		logger.Info("http+tls server started", zap.Any("config", httpServerConfig))
-		logger.Fatal("stop http+tls server", zap.Error(httpsServer.ListenAndServeTLS(httpServerConfig.CertFile, httpServerConfig.CertKey)))
+		logger.Fatal("stop http+tls server", zap.Error(httpServer.ListenAndServeTLS(httpServerConfig.CertFile, httpServerConfig.CertKey)))
 	} else {
-		httpServer := http.Server{
-			Addr:         httpServerConfig.HttpAddr,
-			Handler:      handlers.CORS(methods, origins)(router),
-			ReadTimeout:  httpServerConfig.ReadTimeout,
-			WriteTimeout: httpServerConfig.WriteTimeout,
-		}
 		logger.Info("http server started", zap.Any("config", httpServerConfig))
 		logger.Fatal("stop http server", zap.Error(httpServer.ListenAndServe()))
 	}

@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # HTTP server settings
-export HTTP_ADDR=:80
-export HTTPS_ADDR=:443
+export HTTP_ADDR=:443
 export HTTP_SERVER_CERT_FILE=./tls/localhost.crt
 export HTTP_SERVER_CERT_KEY=./tls/localhost.key
 export HTTP_SERVER_READ_TIMEOUT_SECONDS=60

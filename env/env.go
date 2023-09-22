@@ -9,7 +9,6 @@ import (
 
 type Env struct {
 	HttpAddr                      string
-	HttpsAddr                     string
 	HttpServerCertFile            string
 	HttpServerCertKey             string
 	HttpServerReadTimeoutSeconds  time.Duration
@@ -19,11 +18,6 @@ type Env struct {
 	FileServerBasePath string
 
 	PostgresDSN                          string
-	PostgresHost                         string
-	PostgresPort                         int
-	PostgresDatabase                     string
-	PostgresDatabaseUser                 string
-	PostgresDatabasePassword             string
 	PostgresMaxIdleConnections           int
 	PostgresMaxOpenConnections           int
 	PostgresConnectionMaxLifetimeSeconds time.Duration
@@ -34,7 +28,6 @@ type Env struct {
 func NewEnv() *Env {
 	return &Env{
 		HttpAddr:                             getEnvStr(HttpAddr),
-		HttpsAddr:                            getEnvStr(HttpsAddr),
 		HttpServerCertFile:                   getEnvStr(HttpServerCertFile),
 		HttpServerCertKey:                    getEnvStr(HttpServerCertKey),
 		HttpServerReadTimeoutSeconds:         getEnvSeconds(HttpServerReadTimeoutSeconds),
@@ -42,15 +35,10 @@ func NewEnv() *Env {
 		HttpServerTlsEnabled:                 getEnvBool(HttpServerTlsEnabled),
 		FileServerBasePath:                   getEnvStr(FileServerBasePath),
 		PostgresDSN:                          getEnvStr(PostgresDSN),
-		PostgresHost:                         getEnvStr(PostgresHost),
-		PostgresPort:                         getEnvInt(PostgresPort),
-		PostgresDatabase:                     getEnvStr(PostgresDatabaseName),
-		PostgresDatabaseUser:                 getEnvStr(PostgresDatabaseUser),
-		PostgresDatabasePassword:             getEnvStr(PostgresDatabasePassword),
 		PostgresMaxIdleConnections:           getEnvInt(PostgresMaxIdleConnections),
 		PostgresMaxOpenConnections:           getEnvInt(PostgresMaxOpenConnections),
 		PostgresConnectionMaxLifetimeSeconds: getEnvSeconds(PostgresConnectionMaxLifetimeSeconds),
-		PostgresConnectionMaxIdleTimeSeconds: getEnvSeconds(PostgresMaxIdleConnections),
+		PostgresConnectionMaxIdleTimeSeconds: getEnvSeconds(PostgresConnectionMaxIdleTimeSeconds),
 		PostgresMigrationsUrl:                getEnvStr(PostgresMigrationsUrl),
 	}
 }
