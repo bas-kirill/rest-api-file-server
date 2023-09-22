@@ -8,16 +8,16 @@ import (
 )
 
 type Env struct {
-	HttpServerHost                       string
-	HttpServerProtocol                   string
-	HttpServerPort                       int
-	HttpServerTLSPort                    int
-	HttpServerCertFile                   string
-	HttpServerCertKey                    string
-	HttpServerReadTimeoutSeconds         time.Duration
-	HttpServerWriteTimeoutSeconds        time.Duration
-	HttpServerTlsEnabled                 bool
-	FileServerBasePath                   string
+	HttpAddr                      string
+	HttpsAddr                     string
+	HttpServerCertFile            string
+	HttpServerCertKey             string
+	HttpServerReadTimeoutSeconds  time.Duration
+	HttpServerWriteTimeoutSeconds time.Duration
+	HttpServerTlsEnabled          bool
+
+	FileServerBasePath string
+
 	PostgresDSN                          string
 	PostgresHost                         string
 	PostgresPort                         int
@@ -33,10 +33,8 @@ type Env struct {
 
 func NewEnv() *Env {
 	return &Env{
-		HttpServerHost:                       getEnvStr(HttpServerHost),
-		HttpServerProtocol:                   getEnvStr(HttpServerProtocol),
-		HttpServerPort:                       getEnvInt(HttpServerPort),
-		HttpServerTLSPort:                    getEnvInt(HttpServerTLSPort),
+		HttpAddr:                             getEnvStr(HttpAddr),
+		HttpsAddr:                            getEnvStr(HttpsAddr),
 		HttpServerCertFile:                   getEnvStr(HttpServerCertFile),
 		HttpServerCertKey:                    getEnvStr(HttpServerCertKey),
 		HttpServerReadTimeoutSeconds:         getEnvSeconds(HttpServerReadTimeoutSeconds),

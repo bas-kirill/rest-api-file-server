@@ -6,10 +6,8 @@ import (
 )
 
 type HttpServerConfig struct {
-	Host         string        `json:"host,omitempty"`
-	Protocol     string        `json:"protocol,omitempty"`
-	HTTPPort     int           `json:"http-port,omitempty"`
-	HTTPSPort    int           `json:"https-port,omitempty"`
+	HttpAddr     string        `json:"http-addr,omitempty"`
+	HttpsAddr    string        `json:"https-addr,omitempty"`
 	CertFile     string        `json:"cert-file,omitempty"`
 	CertKey      string        `json:"cert-key,omitempty"`
 	ReadTimeout  time.Duration `json:"read-timeout,omitempty"`
@@ -19,10 +17,8 @@ type HttpServerConfig struct {
 
 func NewHttpServerConfig(env *env.Env) HttpServerConfig {
 	return HttpServerConfig{
-		Host:         env.HttpServerHost,
-		Protocol:     env.HttpServerProtocol,
-		HTTPPort:     env.HttpServerPort,
-		HTTPSPort:    env.HttpServerTLSPort,
+		HttpAddr:     env.HttpAddr,
+		HttpsAddr:    env.HttpsAddr,
 		CertFile:     env.HttpServerCertFile,
 		CertKey:      env.HttpServerCertKey,
 		ReadTimeout:  env.HttpServerReadTimeoutSeconds,

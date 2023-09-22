@@ -1,3 +1,4 @@
+# todo: create multi-stage build + USER
 FROM golang:1.20.4
 
 COPY . /go/src/app
