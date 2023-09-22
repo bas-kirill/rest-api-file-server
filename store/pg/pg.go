@@ -38,12 +38,11 @@ func NewPgDatabase(c *config.PostgresConfig) *DB {
 			break
 		}
 		time.Sleep(1 * time.Second)
-		fmt.Printf("ping postgres database `%s`\n", c.Database)
 	}
 	if err != nil {
 		panic(fmt.Errorf("fail to ping `%s`", string(configJSON)))
 	}
 
-	fmt.Printf("set up connection to `%s`\n", c.Database)
+	fmt.Println("set up connection to pg")
 	return &DB{config: c, Db: db}
 }

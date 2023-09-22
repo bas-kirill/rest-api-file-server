@@ -71,18 +71,18 @@ func main() {
 	router.HandleFunc("/", listFilesController.ListFiles).Methods(http.MethodGet)
 
 	methods := handlers.AllowedMethods([]string{"GET"})
-	origins := handlers.AllowedOrigins([]string{"http://localhost:3000"})
-	server := http.Server{
-		Addr:         ":36000",
+	origins := handlers.AllowedOrigins([]string{"http://localhost:80"}) // todo: add TLS for frontend
+	httpServer := http.Server{
+		Addr:         httpServerConfig.HttpAddr,
 		Handler:      handlers.CORS(methods, origins)(router),
 		ReadTimeout:  httpServerConfig.ReadTimeout,
 		WriteTimeout: httpServerConfig.WriteTimeout,
 	}
-
-	logger.Info("http server started", zap.String("server-address", server.Addr), zap.Any("config", httpServerConfig))
 	if httpServerConfig.TlsEnabled {
-		logger.Fatal("stop https server", zap.Error(server.ListenAndServeTLS(httpServerConfig.CertFile, httpServerConfig.CertKey)))
+		logger.Info("http+tls server started", zap.Any("config", httpServerConfig))
+		logger.Fatal("stop http+tls server", zap.Error(httpServer.ListenAndServeTLS(httpServerConfig.CertFile, httpServerConfig.CertKey)))
 	} else {
-		logger.Fatal("stop http server", zap.Error(server.ListenAndServe()))
+		logger.Info("http server started", zap.Any("config", httpServerConfig))
+		logger.Fatal("stop http server", zap.Error(httpServer.ListenAndServe()))
 	}
 }

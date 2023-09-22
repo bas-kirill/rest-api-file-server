@@ -2,10 +2,12 @@ version: "3.0"
 
 networks:
   file-server:
+    driver: bridge
 
 services:
   postgres:
     image: postgres:14.9
+    container_name: postgres
     restart: always
     environment:
       POSTGRES_DB: fileserver
@@ -14,7 +16,40 @@ services:
     volumes:
       - ./store/pg/data:/var/lib/postgresql/data
     ports:
-      - "5435:5432"
+      - "6000:5432"
+    networks:
+      - file-server
+
+  file-server:
+    build:
+      context: .
+      dockerfile: ./cmd/api/deploy/Dockerfile
+    container_name: file-server
+    environment:
+      - HTTP_ADDR=:80
+      - HTTPS_ADDR=:443
+      - HTTP_SERVER_CERT_FILE=./tls/localhost.crt
+      - HTTP_SERVER_CERT_KEY=./tls/localhost.key
+      - HTTP_SERVER_READ_TIMEOUT_SECONDS=60
+      - HTTP_SERVER_WRITE_TIMEOUT_SECONDS=60
+      - HTTP_SERVER_TLS_ENABLED=True
+      - FILE_SERVER_BASE_PATH=/go/src/app
+      - POSTGRES_DSN=postgres://fileserver:fileserver@postgres:5432/fileserver?sslmode=disable
+      - POSTGRES_HOST=localhost
+      - POSTGRES_PORT=5435
+      - POSTGRES_DATABASE=fileserver
+      - POSTGRES_DATABASE_USER=fileserver
+      - POSTGRES_DATABASE_PASSWORD=fileserver
+      - POSTGRES_MAX_IDLE_CONNECTIONS=20
+      - POSTGRES_MAX_OPEN_CONNECTIONS=100
+      - POSTGRES_CONNECTION_MAX_LIFETIME_SECONDS=300
+      - POSTGRES_CONNECTION_MAX_IDLE_TIME_SECONDS=300
+      - POSTGRES_MIGRATIONS_URL=file://../../store/pg/migrations
+    command: [ "./wait-for-it.sh", "postgres:6000", "--timeout=60", "--", "./file-server" ]
+    ports:
+      - "8080:443"
+    depends_on:
+      - postgres
     networks:
       - file-server
 
@@ -37,9 +72,9 @@ services:
     volumes:
       - ./prometheus:/etc/prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
+      - "--config.file=/etc/prometheus/prometheus.yml"
     ports:
-      - '9090:9090'
+      - "9090:9090"
     depends_on:
       - node-exporter
     networks:
@@ -51,7 +86,7 @@ services:
     volumes:
       - ./grafana:/etc/grafana
     command:
-      - '--config=/etc/grafana/grafana.ini'
+      - "--config=/etc/grafana/grafana.ini"
     ports:
       - "3001:3001"
     depends_on:
@@ -59,47 +94,10 @@ services:
     networks:
       - file-server
 
-  file-server:
-    build:
-      context: .
-      dockerfile: ./cmd/api/deploy/Dockerfile
-    container_name: file-server
-    environment:
-      - HTTP_SERVER_HOST=localhost
-      - HTTP_SERVER_PROTOCOL=http
-      - HTTP_SERVER_PORT=36000
-      - HTTP_SERVER_TLS_PORT=37000
-      - HTTP_SERVER_CERT_FILE=rest-api-file-server.crt
-      - HTTP_SERVER_CERT_KEY=rest-api-file-server.key
-      - HTTP_SERVER_READ_TIMEOUT_SECONDS=60
-      - HTTP_SERVER_WRITE_TIMEOUT_SECONDS=60
-      - HTTP_SERVER_TLS_ENABLED=False
-      - FILE_SERVER_BASE_PATH=/go/src/app
-      - POSTGRES_DSN=postgres://fileserver:fileserver@postgres/fileserver?sslmode=disable
-      - POSTGRES_HOST=localhost
-      - POSTGRES_PORT=5432
-      - POSTGRES_DATABASE=fileserver
-      - POSTGRES_DATABASE_USER=fileserver
-      - POSTGRES_DATABASE_PASSWORD=fileserver
-      - POSTGRES_MAX_IDLE_CONNECTIONS=20
-      - POSTGRES_MAX_OPEN_CONNECTIONS=100
-      - POSTGRES_CONNECTION_MAX_LIFETIME_SECONDS=300
-      - POSTGRES_CONNECTION_MAX_IDLE_TIME_SECONDS=300
-      - POSTGRES_MIGRATIONS_URL=file://../../store/pg/migrations
-    command: ["./wait-for-it.sh", "postgres:5435", "--timeout=60", "--", "./file-server"]
-    ports:
-      - "8080:36000"
-    depends_on:
-      - postgres
-      - prometheus
-      - node-exporter
-      - grafana
-    networks:
-      - file-server
-
   admin-ui:
     build: ./admin-ui
+    container_name: admin-ui
     ports:
-      - "3000:3000"
+      - "80:3000"
     networks:
       - file-server
