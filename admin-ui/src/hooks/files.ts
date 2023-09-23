@@ -10,7 +10,7 @@ export function useFiles() {
         try {
             setError("")
             setLoading(true)
-            const response = await axios.get<string[]>("http://localhost:8080")
+            const response = await axios.get<string[]>("https://localhost:8080")
             console.log(response.data)
             setFiles(response.data)
             setLoading(false)

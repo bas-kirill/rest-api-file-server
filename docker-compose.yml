@@ -26,8 +26,7 @@ services:
       dockerfile: ./cmd/api/deploy/Dockerfile
     container_name: file-server
     environment:
-      - HTTP_ADDR=:80
-      - HTTPS_ADDR=:443
+      - HTTP_ADDR=:443
       - HTTP_SERVER_CERT_FILE=./tls/localhost.crt
       - HTTP_SERVER_CERT_KEY=./tls/localhost.key
       - HTTP_SERVER_READ_TIMEOUT_SECONDS=60
@@ -52,6 +51,12 @@ services:
       - postgres
     networks:
       - file-server
+
+  admin-ui:
+    build: ./admin-ui
+    container_name: admin-ui
+    ports:
+      - "80:80"
 
   node-exporter:
     image: prom/node-exporter:v1.6.1
@@ -91,13 +96,5 @@ services:
       - "3001:3001"
     depends_on:
       - prometheus
-    networks:
-      - file-server
-
-  admin-ui:
-    build: ./admin-ui
-    container_name: admin-ui
-    ports:
-      - "80:3000"
     networks:
       - file-server

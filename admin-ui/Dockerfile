@@ -1,8 +1,17 @@
-FROM node:17-alpine
+FROM node:17-alpine as build
+
 WORKDIR /app
-COPY tsconfig.json /app
-COPY package.json /app
-COPY src/ /app/src
-COPY public/ /app/public
+
+COPY ./tsconfig.json     /app/tsconfig.json
+COPY ./package.json      /app/package.json
+COPY ./package-lock.json /app/package-lock.json
+
 RUN npm install
-CMD ["npm", "start"]
+
+COPY . .
+
+RUN npm run build
+
+FROM nginx:1.25.2
+COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/build /usr/share/nginx/html
