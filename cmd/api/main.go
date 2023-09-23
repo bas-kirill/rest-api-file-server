@@ -71,7 +71,7 @@ func main() {
 	router.HandleFunc("/", listFilesController.ListFiles).Methods(http.MethodGet)
 
 	methods := handlers.AllowedMethods([]string{"GET"})
-	origins := handlers.AllowedOrigins([]string{"http://localhost:80"}) // todo: add TLS for frontend
+	origins := handlers.AllowedOrigins([]string{"http://localhost"}) // todo: add TLS for frontend
 	httpServer := http.Server{
 		Addr:         httpServerConfig.HttpAddr,
 		Handler:      handlers.CORS(methods, origins)(router),

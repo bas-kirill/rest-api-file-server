@@ -5,6 +5,7 @@ import {ErrorMessage} from "./components/ErrorMessage";
 import {File} from "./components/File";
 import {v4 as uuidv4} from 'uuid';
 
+// todo: use React Admin: https://marmelab.com/react-admin
 function App() {
     const {loading, error, files} = useFiles()
 
