@@ -1,8 +1,9 @@
 {
   "name": "admin-ui",
+  "version": "2.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 80",
     "build": "vite build",
     "serve": "vite preview",
     "type-check": "tsc --noEmit",

@@ -26,8 +26,8 @@ func TestIntegration_GivenFile_WhenSaveFile_ThenFileSaved(t *testing.T) {
 	pgDb := pg.NewPgDatabase(pgConfig)
 	pgMigration := store.NewPgMigrator(logger, pgConfig)
 	pgMigration.RunMigrations()
-	fileWebService := service.NewFileWebService(fileServerConfig, pgDb)
-	saveFileController := controller.NewSaveFileController(logger, fileWebService)
+	fileWebService := service.NewLocalFileContentService(fileServerConfig, pgDb)
+	saveFileController := controller.NewUploadController(logger, fileWebService)
 
 	file := struct {
 		filename string
@@ -54,7 +54,7 @@ func TestIntegration_GivenFile_WhenSaveFile_ThenFileSaved(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	w := httptest.NewRecorder()
 
-	saveFileController.SaveFile(w, req)
+	saveFileController.Upload(w, req)
 
 	// validate
 	require.Equal(t, http.StatusOK, w.Result().StatusCode)
@@ -78,9 +78,9 @@ func TestIntegration_GivenFileSaved_WhenSaveSameFile_ThenFileOverwritten(t *test
 	pgDb := pg.NewPgDatabase(pgConfig)
 	pgMigration := store.NewPgMigrator(logger, pgConfig)
 	pgMigration.RunMigrations()
-	fileWebService := service.NewFileWebService(fileServerConfig, pgDb)
-	saveFileController := controller.NewSaveFileController(logger, fileWebService)
-	getFileController := controller.NewGetFileController(logger, fileServerConfig, fileWebService)
+	fileWebService := service.NewLocalFileContentService(fileServerConfig, pgDb)
+	saveFileController := controller.NewUploadController(logger, fileWebService)
+	getFileController := controller.NewDownloadController(logger, fileServerConfig, fileWebService)
 
 	files := []struct {
 		filename string
@@ -113,7 +113,7 @@ func TestIntegration_GivenFileSaved_WhenSaveSameFile_ThenFileOverwritten(t *test
 		req.Header.Set("Content-Type", writer.FormDataContentType())
 		w := httptest.NewRecorder()
 
-		saveFileController.SaveFile(w, req)
+		saveFileController.Upload(w, req)
 
 		// validate
 		require.Equal(t, http.StatusOK, w.Result().StatusCode)
@@ -125,7 +125,7 @@ func TestIntegration_GivenFileSaved_WhenSaveSameFile_ThenFileOverwritten(t *test
 	req := httptest.NewRequest(http.MethodGet, userFilePath, nil)
 	w := httptest.NewRecorder()
 
-	getFileController.GetFile(w, req)
+	getFileController.Download(w, req)
 
 	require.Equal(t, http.StatusOK, w.Result().StatusCode)
 	response, err := io.ReadAll(w.Body)

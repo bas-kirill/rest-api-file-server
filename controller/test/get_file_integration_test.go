@@ -26,13 +26,13 @@ func TestIntegration_GivenNoFile_WhenGetFile_ThenReturnFileNotFound(t *testing.T
 	pgDb := pg.NewPgDatabase(pgConfig)
 	pgMigration := store.NewPgMigrator(logger, pgConfig)
 	pgMigration.RunMigrations()
-	fileWebService := service.NewFileWebService(fileServerConfig, pgDb)
-	getFileController := controller.NewGetFileController(logger, fileServerConfig, fileWebService)
+	fileWebService := service.NewLocalFileContentService(fileServerConfig, pgDb)
+	getFileController := controller.NewDownloadController(logger, fileServerConfig, fileWebService)
 
 	req := httptest.NewRequest(http.MethodGet, "/file.txt", nil)
 	w := httptest.NewRecorder()
 
-	getFileController.GetFile(w, req)
+	getFileController.Download(w, req)
 
 	require.Equal(t, http.StatusNotFound, w.Result().StatusCode)
 }
@@ -45,9 +45,9 @@ func TestIntegration_GivenFile_WhenGetFile_ThenReturnFile(t *testing.T) {
 	pgDb := pg.NewPgDatabase(pgConfig)
 	pgMigration := store.NewPgMigrator(logger, pgConfig)
 	pgMigration.RunMigrations()
-	fileWebService := service.NewFileWebService(fileServerConfig, pgDb)
-	getFileController := controller.NewGetFileController(logger, fileServerConfig, fileWebService)
-	saveFileController := controller.NewSaveFileController(logger, fileWebService)
+	fileWebService := service.NewLocalFileContentService(fileServerConfig, pgDb)
+	getFileController := controller.NewDownloadController(logger, fileServerConfig, fileWebService)
+	saveFileController := controller.NewUploadController(logger, fileWebService)
 
 	file := struct {
 		filename string
@@ -74,12 +74,12 @@ func TestIntegration_GivenFile_WhenGetFile_ThenReturnFile(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	w := httptest.NewRecorder()
 
-	saveFileController.SaveFile(w, req)
+	saveFileController.Upload(w, req)
 
 	req = httptest.NewRequest(http.MethodGet, userFilePath, nil)
 	w = httptest.NewRecorder()
 
-	getFileController.GetFile(w, req)
+	getFileController.Download(w, req)
 
 	require.Equal(t, http.StatusOK, w.Result().StatusCode)
 	response, err := io.ReadAll(w.Body)

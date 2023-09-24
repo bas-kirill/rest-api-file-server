@@ -26,8 +26,8 @@ func TestIntegration_GivenFile_WhenDeleteFile_ThenFileDeleted(t *testing.T) {
 	pgDb := pg.NewPgDatabase(pgConfig)
 	pgMigration := store.NewPgMigrator(logger, pgConfig)
 	pgMigration.RunMigrations()
-	fileWebService := service.NewFileWebService(fileServerConfig, pgDb)
-	saveFileController := controller.NewSaveFileController(logger, fileWebService)
+	fileWebService := service.NewLocalFileContentService(fileServerConfig, pgDb)
+	saveFileController := controller.NewUploadController(logger, fileWebService)
 	deleteFielController := controller.NewDeleteFileController(logger, fileWebService)
 
 	file := struct {
@@ -55,7 +55,7 @@ func TestIntegration_GivenFile_WhenDeleteFile_ThenFileDeleted(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	w := httptest.NewRecorder()
 
-	saveFileController.SaveFile(w, req)
+	saveFileController.Upload(w, req)
 
 	// validate
 	require.Equal(t, http.StatusOK, w.Result().StatusCode)
