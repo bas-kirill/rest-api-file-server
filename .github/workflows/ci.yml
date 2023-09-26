@@ -27,4 +27,4 @@ jobs:
         run: make build
 
       - name: Start Test
-        run: make test
+        run: ./integration-test.sh

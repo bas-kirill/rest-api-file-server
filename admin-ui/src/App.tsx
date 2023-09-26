@@ -1,21 +1,16 @@
-import './App.css';
-import {useFiles} from "./hooks/files";
-import {Loader} from "./components/Loader";
-import {ErrorMessage} from "./components/ErrorMessage";
-import {File} from "./components/File";
-import {v4 as uuidv4} from 'uuid';
+import {Admin, ListGuesser, Resource, ShowGuesser,} from "react-admin";
+import {dataProvider} from "./dataProvider";
+import FileOpenIcon from '@mui/icons-material/FileOpen';
+import {Dashboard} from "./Dashboard";
+import {FileList} from "./Files";
+import {DebugLayout} from "./DebugLayout";
 
-// todo: use React Admin: https://marmelab.com/react-admin
-function App() {
-    const {loading, error, files} = useFiles()
-
-    return (
-        <div>
-            {loading && <Loader/>}
-            {error && <ErrorMessage error={error}/>}
-            {files.map(file => <File file={file} key={uuidv4()}/>)}
-        </div>
-    );
-}
-
-export default App;
+export const App = () => (
+    <Admin dataProvider={dataProvider} dashboard={Dashboard}>
+        <Resource
+            name="file"
+            show={ShowGuesser}
+            list={FileList}
+            icon={FileOpenIcon}/>
+    </Admin>
+);

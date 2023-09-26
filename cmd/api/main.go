@@ -54,24 +54,29 @@ func main() {
 	pgMigration.RunMigrations()
 
 	pgDb := pg.NewPgDatabase(pgConfig)
-	fileWebService := service.NewFileWebService(fileServerConfig, pgDb)
+	localFileContentService := service.NewLocalFileContentService(fileServerConfig, pgDb)
+	localFileMetaService := service.NewLocalFileMetaService(fileServerConfig, pgDb)
 
-	saveFileController := controller.NewSaveFileController(logger, fileWebService)
-	getFileController := controller.NewGetFileController(logger, fileServerConfig, fileWebService)
-	deleteFileController := controller.NewDeleteFileController(logger, fileWebService)
-	listFilesController := controller.NewListFiles(logger, fileWebService)
+	uploadFileController := controller.NewUploadController(logger, localFileContentService)
+	downloadFileController := controller.NewDownloadController(logger, fileServerConfig, localFileContentService)
+
+	getFileMetaController := controller.NewGetFileMeta(logger, localFileMetaService)
+	deleteFileController := controller.NewDeleteFileController(logger, localFileMetaService)
+	listFilesController := controller.NewListFiles(logger, localFileMetaService)
 
 	httpLoggerMiddleware := middleware.NewHttpLoggerMiddleware(logger)
 
 	router := mux.NewRouter()
 	router.Use(httpLoggerMiddleware.Log)
-	router.HandleFunc("/{file-system-path:.+}", saveFileController.SaveFile).Methods(http.MethodPut)
-	router.HandleFunc("/{file-system-path:.+}", getFileController.GetFile).Methods(http.MethodGet)
-	router.HandleFunc("/{file-system-path:.+}", deleteFileController.DeleteFile).Methods(http.MethodDelete)
-	router.HandleFunc("/", listFilesController.ListFiles).Methods(http.MethodGet)
+	router.HandleFunc("/file/{file-system-path:.+}", uploadFileController.Upload).Methods(http.MethodPut)
+	router.HandleFunc("/file/{id}/content", downloadFileController.Download).Methods(http.MethodGet)
+
+	router.HandleFunc("/file", listFilesController.ListFiles).Methods(http.MethodGet)
+	router.HandleFunc("/file/{id}", getFileMetaController.GetFileMeta).Methods(http.MethodGet)
+	router.HandleFunc("/file/{id}", deleteFileController.DeleteFile).Methods(http.MethodDelete)
 
 	methods := handlers.AllowedMethods([]string{"GET"})
-	origins := handlers.AllowedOrigins([]string{"http://localhost"}) // todo: add TLS for frontend
+	origins := handlers.AllowedOrigins([]string{"*"}) // todo: add TLS for frontend
 	httpServer := http.Server{
 		Addr:         httpServerConfig.HttpAddr,
 		Handler:      handlers.CORS(methods, origins)(router),

@@ -26,9 +26,17 @@ func TestIntegration_GivenFiles_WhenListFiles_ThenReturnFilenames(t *testing.T) 
 	pgDb := pg.NewPgDatabase(pgConfig)
 	pgMigration := store.NewPgMigrator(logger, pgConfig)
 	pgMigration.RunMigrations()
-	fileWebService := service.NewFileWebService(fileServerConfig, pgDb)
-	saveFileController := controller.NewSaveFileController(logger, fileWebService)
-	listFilesController := controller.NewListFiles(logger, fileWebService)
+	localFileContentService := service.NewLocalFileContentService(fileServerConfig, pgDb)
+	localFileMetaService := service.NewLocalFileMetaService(fileServerConfig, pgDb)
+	uploadController := controller.NewUploadController(logger, localFileContentService)
+	listFilesController := controller.NewListFiles(logger, localFileMetaService)
+
+	t.Cleanup(func() {
+		_, err := pgDb.Db.Exec("truncate table files restart identity")
+		if err != nil {
+			panic(err)
+		}
+	})
 
 	files := []struct {
 		filename     string
@@ -63,11 +71,11 @@ func TestIntegration_GivenFiles_WhenListFiles_ThenReturnFilenames(t *testing.T) 
 		require.NoError(t, writer.Close())
 
 		// create http request & response
-		req := httptest.NewRequest(http.MethodPut, file.userFileName, body)
-		req.Header.Set("Content-Type", writer.FormDataContentType())
+		uploadReq := newReq(http.MethodPut, "/file"+file.userFileName, body, map[string]string{"file-system-path": file.userFileName})
+		uploadReq.Header.Set("Content-Type", writer.FormDataContentType())
 		w := httptest.NewRecorder()
 
-		saveFileController.SaveFile(w, req)
+		uploadController.Upload(w, uploadReq)
 
 		// validate
 		require.Equal(t, http.StatusOK, w.Result().StatusCode)
@@ -88,13 +96,4 @@ func TestIntegration_GivenFiles_WhenListFiles_ThenReturnFilenames(t *testing.T) 
 	for _, file := range files {
 		require.Contains(t, string(response), file.filename)
 	}
-
-	t.Cleanup(func() {
-		for _, file := range files {
-			err = fileWebService.DeleteFile(file.userFileName)
-			if err != nil {
-				panic(err)
-			}
-		}
-	})
 }

@@ -26,13 +26,13 @@ func TestIntegration_GivenNoFile_WhenGetFile_ThenReturnFileNotFound(t *testing.T
 	pgDb := pg.NewPgDatabase(pgConfig)
 	pgMigration := store.NewPgMigrator(logger, pgConfig)
 	pgMigration.RunMigrations()
-	fileWebService := service.NewFileWebService(fileServerConfig, pgDb)
-	getFileController := controller.NewGetFileController(logger, fileServerConfig, fileWebService)
+	fileWebService := service.NewLocalFileContentService(fileServerConfig, pgDb)
+	getFileController := controller.NewDownloadController(logger, fileServerConfig, fileWebService)
 
-	req := httptest.NewRequest(http.MethodGet, "/file.txt", nil)
+	getFileContentReq := newReq(http.MethodGet, "/file/1/content", nil, map[string]string{"id": "1"})
 	w := httptest.NewRecorder()
 
-	getFileController.GetFile(w, req)
+	getFileController.Download(w, getFileContentReq)
 
 	require.Equal(t, http.StatusNotFound, w.Result().StatusCode)
 }
@@ -45,9 +45,16 @@ func TestIntegration_GivenFile_WhenGetFile_ThenReturnFile(t *testing.T) {
 	pgDb := pg.NewPgDatabase(pgConfig)
 	pgMigration := store.NewPgMigrator(logger, pgConfig)
 	pgMigration.RunMigrations()
-	fileWebService := service.NewFileWebService(fileServerConfig, pgDb)
-	getFileController := controller.NewGetFileController(logger, fileServerConfig, fileWebService)
-	saveFileController := controller.NewSaveFileController(logger, fileWebService)
+	localFileContentService := service.NewLocalFileContentService(fileServerConfig, pgDb)
+	downloadController := controller.NewDownloadController(logger, fileServerConfig, localFileContentService)
+	uploadController := controller.NewUploadController(logger, localFileContentService)
+
+	t.Cleanup(func() {
+		_, err := pgDb.Db.Exec("truncate table files restart identity")
+		if err != nil {
+			panic(err)
+		}
+	})
 
 	file := struct {
 		filename string
@@ -69,27 +76,19 @@ func TestIntegration_GivenFile_WhenGetFile_ThenReturnFile(t *testing.T) {
 	require.NoError(t, writer.Close())
 
 	// create http request & response
-	userFilePath := "/folder/file.txt"
-	req := httptest.NewRequest(http.MethodPut, userFilePath, body)
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	uploadReq := newReq(http.MethodPut, "/file/folder/file.txt", body, map[string]string{"file-system-path": "/folder/file.txt"})
+	uploadReq.Header.Set("Content-Type", writer.FormDataContentType())
 	w := httptest.NewRecorder()
 
-	saveFileController.SaveFile(w, req)
+	uploadController.Upload(w, uploadReq)
 
-	req = httptest.NewRequest(http.MethodGet, userFilePath, nil)
+	downloadReq := newReq(http.MethodGet, "/file/1/content", nil, map[string]string{"id": "1"})
 	w = httptest.NewRecorder()
 
-	getFileController.GetFile(w, req)
+	downloadController.Download(w, downloadReq)
 
 	require.Equal(t, http.StatusOK, w.Result().StatusCode)
 	response, err := io.ReadAll(w.Body)
 	require.NoError(t, err)
 	require.Equal(t, file.content, string(response))
-
-	t.Cleanup(func() {
-		err = fileWebService.DeleteFile(userFilePath)
-		if err != nil {
-			panic(err)
-		}
-	})
 }
