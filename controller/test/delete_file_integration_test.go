@@ -26,9 +26,17 @@ func TestIntegration_GivenFile_WhenDeleteFile_ThenFileDeleted(t *testing.T) {
 	pgDb := pg.NewPgDatabase(pgConfig)
 	pgMigration := store.NewPgMigrator(logger, pgConfig)
 	pgMigration.RunMigrations()
-	fileWebService := service.NewLocalFileContentService(fileServerConfig, pgDb)
-	saveFileController := controller.NewUploadController(logger, fileWebService)
-	deleteFielController := controller.NewDeleteFileController(logger, fileWebService)
+	localFileContentService := service.NewLocalFileContentService(fileServerConfig, pgDb)
+	uploadController := controller.NewUploadController(logger, localFileContentService)
+	localFileMetaService := service.NewLocalFileMetaService(fileServerConfig, pgDb)
+	deleteFileController := controller.NewDeleteFileController(logger, localFileMetaService)
+
+	t.Cleanup(func() {
+		_, err := pgDb.Db.Exec("truncate table files restart identity")
+		if err != nil {
+			panic(err)
+		}
+	})
 
 	file := struct {
 		filename string
@@ -50,12 +58,12 @@ func TestIntegration_GivenFile_WhenDeleteFile_ThenFileDeleted(t *testing.T) {
 	require.NoError(t, writer.Close())
 
 	// create http request & response
-	userFilePath := "/folder/file.txt"
-	req := httptest.NewRequest(http.MethodPut, userFilePath, body)
+	userFilePath := "/file/folder/file.txt"
+	req := newReq(http.MethodPut, userFilePath, body, map[string]string{"file-system-path": "/folder/file.txt"})
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	w := httptest.NewRecorder()
 
-	saveFileController.Upload(w, req)
+	uploadController.Upload(w, req)
 
 	// validate
 	require.Equal(t, http.StatusOK, w.Result().StatusCode)
@@ -63,10 +71,10 @@ func TestIntegration_GivenFile_WhenDeleteFile_ThenFileDeleted(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, message)
 
-	req = httptest.NewRequest(http.MethodDelete, userFilePath, nil)
+	deleteReq := newReq(http.MethodDelete, "/file/1", nil, map[string]string{"id": "1"})
 	w = httptest.NewRecorder()
 
-	deleteFielController.DeleteFile(w, req)
+	deleteFileController.DeleteFile(w, deleteReq)
 
 	require.Equal(t, http.StatusOK, w.Result().StatusCode)
 }

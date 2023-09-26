@@ -36,7 +36,7 @@ func (ctr *UploadController) Upload(w http.ResponseWriter, r *http.Request) {
 	err = ctr.service.Upload(model.NewFile(file, userFilePath))
 	if err != nil {
 		ctr.logger.Error("upload file", zap.Error(err))
-		WriteResponse(w, http.StatusInternalServerError, fmt.Sprintf("Fail to save `%ctr`", userFilePath))
+		WriteResponse(w, http.StatusInternalServerError, fmt.Sprintf("Fail to save `%s`", userFilePath))
 		return
 	}
 

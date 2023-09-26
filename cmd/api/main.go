@@ -76,7 +76,7 @@ func main() {
 	router.HandleFunc("/file/{id}", deleteFileController.DeleteFile).Methods(http.MethodDelete)
 
 	methods := handlers.AllowedMethods([]string{"GET"})
-	origins := handlers.AllowedOrigins([]string{"http://localhost"}) // todo: add TLS for frontend
+	origins := handlers.AllowedOrigins([]string{"*"}) // todo: add TLS for frontend
 	httpServer := http.Server{
 		Addr:         httpServerConfig.HttpAddr,
 		Handler:      handlers.CORS(methods, origins)(router),

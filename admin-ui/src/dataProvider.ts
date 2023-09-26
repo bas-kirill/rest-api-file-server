@@ -1,22 +1,13 @@
 import { DataProvider, fetchUtils } from "react-admin";
 import { stringify } from "query-string";
 
-const apiUrl = 'https://localhost:443';
+const apiUrl = 'https://localhost:8080';
 const httpClient = fetchUtils.fetchJson;
 
 export const dataProvider: DataProvider = {
     getList: async (resource, params) => {
-        // console.log(resource);
-        // console.log(apiUrl)
-        // return httpClient(apiUrl).then(({ headers, json }) => (
-        //     {
-        //     data: json,
-        //     total: parseInt((headers.get('content-range') || "0").split('/').pop() || 0, 10),
-        // }));
         const url = `${apiUrl}/${resource}`
-
         const { json, headers } = await httpClient(url);
-        console.log(json);
         return ({
             data: json.data,
             total: json.count,
