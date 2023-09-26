@@ -1,8 +1,11 @@
 FROM node:17-alpine as build
 
 WORKDIR /app
-COPY . .
+COPY package.json /app
+COPY package-lock.json /app
 RUN npm install
+
+COPY . .
 RUN npm run build
 
 FROM nginx:1.25.2
