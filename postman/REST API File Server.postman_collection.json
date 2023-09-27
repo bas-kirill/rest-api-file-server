@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "Save File",
+			"name": "Upload File",
 			"request": {
 				"method": "PUT",
 				"header": [],
@@ -22,12 +22,14 @@
 					]
 				},
 				"url": {
-					"raw": "{{host}}:{{port}}/:file-system-path",
+					"raw": "{{proto}}://{{host}}:{{port}}/file/:file-system-path",
+					"protocol": "{{proto}}",
 					"host": [
 						"{{host}}"
 					],
 					"port": "{{port}}",
 					"path": [
+						"file",
 						":file-system-path"
 					],
 					"variable": [
@@ -95,24 +97,26 @@
 			]
 		},
 		{
-			"name": "Get File",
+			"name": "Download File",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{proto}}://{{host}}:{{port}}/:file-system-path",
+					"raw": "{{proto}}://{{host}}:{{port}}/file/:id/content",
 					"protocol": "{{proto}}",
 					"host": [
 						"{{host}}"
 					],
 					"port": "{{port}}",
 					"path": [
-						":file-system-path"
+						"file",
+						":id",
+						"content"
 					],
 					"variable": [
 						{
-							"key": "file-system-path",
-							"value": "folder/file.txt"
+							"key": "id",
+							"value": "5"
 						}
 					]
 				}
@@ -172,24 +176,70 @@
 			]
 		},
 		{
-			"name": "Delete File",
+			"name": "List Files Meta",
 			"request": {
-				"method": "DELETE",
+				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{proto}}://{{host}}:{{port}}/:file-system-path",
+					"raw": "{{proto}}://{{host}}:{{port}}/file",
 					"protocol": "{{proto}}",
 					"host": [
 						"{{host}}"
 					],
 					"port": "{{port}}",
 					"path": [
-						":file-system-path"
+						"file"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get File Meta by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{proto}}://{{host}}:{{port}}/file/:id",
+					"protocol": "{{proto}}",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"file",
+						":id"
 					],
 					"variable": [
 						{
-							"key": "file-system-path",
-							"value": "folder/file.txt"
+							"key": "id",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete File Meta",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{proto}}://{{host}}:{{port}}/file/:id",
+					"protocol": "{{proto}}",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"file",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "4"
 						}
 					]
 				}
@@ -235,22 +285,6 @@
 					"body": null
 				}
 			]
-		},
-		{
-			"name": "List Files",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{proto}}://{{host}}:{{port}}",
-					"protocol": "{{proto}}",
-					"host": [
-						"{{host}}"
-					],
-					"port": "{{port}}"
-				}
-			},
-			"response": []
 		}
 	]
 }
