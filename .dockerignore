@@ -12,4 +12,9 @@ vendor/
 # Exclude git history and configuration.
 .gitignore
 
+# Exclude docker compose files
+# We do not rebuild layer with sources if docker compose files was changed
+docker-compose.yml
+docker-compose.test.yml
+
 /node_modules
