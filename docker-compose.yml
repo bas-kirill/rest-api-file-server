@@ -90,6 +90,7 @@ services:
     container_name: grafana
     volumes:
       - ./grafana:/etc/grafana
+      - ./grafana/data:/var/lib/grafana
     command:
       - "--config=/etc/grafana/grafana.ini"
     ports:
